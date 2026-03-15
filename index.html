@@ -3,72 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plan Posiłków KP</title>
+<title>Plan posiłków KP</title>
 
 <style>
 
+:root{
+--bg:#f6f4ef;
+--card:#ffffff;
+--text:#222;
+--muted:#6b6b6b;
+--line:#e6e0d5;
+--accent:#435b4d;
+--accent-soft:#e8efe9;
+--gold:#c49a4a;
+--shadow:0 10px 28px rgba(34,34,34,0.08);
+--radius:18px;
+}
+
+*{box-sizing:border-box}
+
 body{
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-background:#f6f7fb;
 margin:0;
+font-family:Inter,Arial,sans-serif;
+background:linear-gradient(180deg,#fbfaf7 0%,var(--bg) 100%);
+color:var(--text)
 }
 
-.container{
-max-width:650px;
+.app{
+max-width:760px;
 margin:auto;
-padding:20px;
+padding:18px 14px 90px
 }
 
-.card{
-background:white;
-padding:18px;
-border-radius:16px;
-margin-bottom:14px;
-box-shadow:0 6px 16px rgba(0,0,0,0.08);
-}
-
-h1,h2{
-margin-top:0;
-}
-
-.meal{
-border:1px solid #e5e7eb;
-padding:12px;
-border-radius:12px;
-margin-top:10px;
-}
-
-button{
-background:#0f172a;
+.hero{
+background:linear-gradient(135deg,#435b4d 0%,#627967 100%);
 color:white;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-cursor:pointer;
+padding:18px;
+border-radius:24px;
+box-shadow:var(--shadow)
+}
+
+.hero h1{
+margin:0 0 6px;
+font-size:1.7rem
+}
+
+.hero p{
+margin:0;
+opacity:.9
+}
+
+.kpi-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:16px
+}
+
+.kpi{
+background:rgba(255,255,255,.12);
+border-radius:16px;
+padding:12px
+}
+
+.kpi-label{
+font-size:.8rem;
+opacity:.8
+}
+
+.kpi-value{
+font-size:1.35rem;
+font-weight:700
 }
 
 .progress{
-height:10px;
-background:#e5e7eb;
-border-radius:10px;
-overflow:hidden;
-margin-top:6px;
+height:8px;
+background:rgba(255,255,255,.2);
+border-radius:999px;
+overflow:hidden
 }
 
-.progress-bar{
-height:100%;
-background:#22c55e;
-width:0%;
-}
-
-.suggestion{
-background:#f0fdf4;
-border:1px solid #bbf7d0;
-}
-
-label{
+.progress span{
 display:block;
-margin-top:8px;
+height:100%;
+background:white;
+width:0%
+}
+
+.section{
+margin-top:18px;
+background:rgba(255,255,255,.8);
+border:1px solid #efe7da;
+border-radius:22px;
+box-shadow:var(--shadow)
+}
+
+.section-head{
+padding:16px
+}
+
+.section h2{
+margin:0 0 4px
+}
+
+.checklist{
+padding:0 16px 16px;
+display:grid;
+gap:10px
+}
+
+.check-item{
+background:white;
+border:1px solid var(--line);
+border-radius:16px;
+padding:13px
+}
+
+.toolbar{
+display:flex;
+gap:10px;
+overflow-x:auto;
+padding:8px 16px
+}
+
+.pill{
+background:white;
+border:1px solid var(--line);
+border-radius:999px;
+padding:8px 14px
+}
+
+.pill.active{
+background:var(--accent);
+color:white
+}
+
+.meal-grid{
+display:grid;
+gap:12px;
+padding:0 16px 16px
+}
+
+.meal-card{
+background:white;
+border:1px solid var(--line);
+border-radius:18px;
+padding:14px
+}
+
+.macro-row{
+display:flex;
+gap:10px;
+margin:12px 0
+}
+
+.macro{
+background:#f8f5ef;
+border-radius:12px;
+padding:10px
+}
+
+button{
+border:0;
+border-radius:12px;
+padding:11px 13px;
+cursor:pointer
+}
+
+.btn-secondary{
+background:#f1ece2
+}
+
+.qty-wrap{
+display:inline-flex;
+gap:6px;
+background:#f7f3ec;
+border-radius:12px;
+padding:4px
+}
+
+.qty{
+min-width:28px;
+text-align:center;
+font-weight:700
+}
+
+.selected-list{
+display:grid;
+gap:10px;
+padding:0 16px 16px
+}
+
+.selected-item{
+background:white;
+border:1px solid var(--line);
+border-radius:16px;
+padding:12px;
+display:flex;
+justify-content:space-between
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.4);
+display:none;
+align-items:end;
+justify-content:center
+}
+
+.modal.open{display:flex}
+
+.modal-card{
+background:white;
+border-radius:24px 24px 18px 18px;
+padding:18px;
+max-height:85vh;
+overflow:auto
 }
 
 </style>
@@ -76,187 +227,117 @@ margin-top:8px;
 
 <body>
 
-<div class="container">
+<div class="app">
 
-<div class="card">
-<h1>Plan Posiłków</h1>
-<p><strong>Cel dzienny: 2200 kcal • 160 g białka</strong></p>
+<section class="hero">
+
+<h1>Plan posiłków KP</h1>
+<p>Zaplanuj dzień wokół 2200 kcal i 160 g białka.</p>
+
+<div class="kpi-grid">
+
+<div class="kpi">
+<div class="kpi-label">Kalorie</div>
+<div class="kpi-value"><span id="caloriesValue">0</span> / 2200</div>
+<div class="progress"><span id="caloriesBar"></span></div>
 </div>
 
-<div class="card">
-
-<h2>Postęp dzienny</h2>
-
-Kalorie: <span id="calories">0</span> / 2200
-<div class="progress"><div id="calBar" class="progress-bar"></div></div>
-
-<br>
-
-Białko: <span id="protein">0</span> / 160 g
-<div class="progress"><div id="proteinBar" class="progress-bar"></div></div>
-
-</div>
-
-<div class="card">
-
-<h2>Śniadanie</h2>
-
-<div class="meal">
-<strong>Owsianka proteinowa</strong><br>
-450 kcal • 35 g białka
-<br><br>
-<button onclick="addMeal(450,35)">Dodaj</button>
-</div>
-
-<div class="meal">
-<strong>Jajka + bajgiel</strong><br>
-520 kcal • 40 g białka
-<br><br>
-<button onclick="addMeal(520,40)">Dodaj</button>
+<div class="kpi">
+<div class="kpi-label">Białko</div>
+<div class="kpi-value"><span id="proteinValue">0</span> g / 160 g</div>
+<div class="progress"><span id="proteinBar"></span></div>
 </div>
 
 </div>
 
-<div class="card">
+</section>
 
-<h2>Kolacja</h2>
 
-<div class="meal">
-<strong>Kurczak z ryżem</strong><br>
-650 kcal • 50 g białka
-<br><br>
-<button onclick="addMeal(650,50)">Dodaj</button>
-</div>
-
-<div class="meal">
-<strong>Łosoś z ziemniakami</strong><br>
-700 kcal • 45 g białka
-<br><br>
-<button onclick="addMeal(700,45)">Dodaj</button>
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>Przekąski</h2>
-
-<div class="meal">
-<strong>Jogurt grecki</strong><br>
-200 kcal • 20 g białka
-<br><br>
-<button onclick="addMeal(200,20)">Dodaj</button>
-</div>
-
-<div class="meal">
-<strong>Pudding proteinowy</strong><br>
-200 kcal • 20 g białka
-<br><br>
-<button onclick="addMeal(200,20)">Dodaj</button>
-</div>
-
-</div>
-
-<div class="card suggestion">
-
-<h2>Sugestia posiłku</h2>
-
-<p id="suggestionText">
-Dodaj posiłki aby zobaczyć sugestię uzupełnienia kalorii lub białka.
-</p>
-
-</div>
-
-<div class="card">
-
+<section class="section">
+<div class="section-head">
 <h2>Cele dzienne</h2>
-
-<label>
-<input type="checkbox"> Osiągnięto cel kalorii i białka
-</label>
-
-<label>
-<input type="checkbox"> 10 000 kroków
-</label>
-
-<label>
-<input type="checkbox"> Wypite 2 litry wody
-</label>
-
+<p>Odhacz podstawowe nawyki każdego dnia.</p>
 </div>
 
-<div class="card">
+<div class="checklist">
 
-<h2>Trening tygodniowy</h2>
+<div class="check-item">
+<label><input type="checkbox" id="goalTick"> Osiągnięto cel kalorii i białka</label>
+</div>
 
-<label><input type="checkbox"> Trening 1</label>
-<label><input type="checkbox"> Trening 2</label>
-<label><input type="checkbox"> Trening 3</label>
+<div class="check-item">
+<label><input type="checkbox" id="stepsTick"> 10 000 kroków</label>
+</div>
+
+<div class="check-item">
+<label><input type="checkbox" id="waterTick"> Wypite 2 litry wody</label>
+</div>
+
+<div class="check-item">
+<strong>Treningi w tygodniu</strong><br>
+<small>Cel: 3 treningi tygodniowo</small>
+<div id="exerciseDots"></div>
+</div>
 
 </div>
+</section>
+
+
+<section class="section">
+<div class="section-head">
+<h2>Baza posiłków</h2>
+<p>Kliknij posiłek aby zobaczyć składniki i sposób przygotowania.</p>
+</div>
+
+<div class="toolbar" id="categoryTabs"></div>
+<div class="meal-grid" id="mealGrid"></div>
+
+</section>
+
+
+<section class="section">
+<div class="section-head">
+<h2>Dzisiejszy plan</h2>
+</div>
+
+<div class="selected-list" id="selectedList"></div>
+
+</section>
+
+
+<section class="section">
+<div class="section-head">
+<h2>Sugestia uzupełnienia makro</h2>
+<p id="macroSuggestion">Dodaj posiłki aby zobaczyć sugestię.</p>
+</div>
+</section>
 
 </div>
 
 <script>
 
-let calories = 0
-let protein = 0
+const TARGETS={calories:2200,protein:160}
 
-function addMeal(c,p){
+function updateSuggestion(calories,protein){
 
-calories += c
-protein += p
+let calLeft=TARGETS.calories-calories
+let proteinLeft=TARGETS.protein-protein
 
-document.getElementById("calories").innerText = calories
-document.getElementById("protein").innerText = protein
+let suggestion=""
 
-updateBars()
-updateSuggestion()
+if(calLeft<=0 && proteinLeft<=0)
+suggestion="Świetnie! Osiągnięto dzienny cel."
 
-}
+else if(proteinLeft>15)
+suggestion="Brakuje białka – dobrym wyborem będzie pudding proteinowy."
 
-function updateBars(){
+else if(calLeft>150)
+suggestion="Możesz dodać małą przekąskę."
 
-let calPercent = Math.min((calories/2200)*100,100)
-let proteinPercent = Math.min((protein/160)*100,100)
+else
+suggestion="Jesteś bardzo blisko dziennego celu."
 
-document.getElementById("calBar").style.width = calPercent + "%"
-document.getElementById("proteinBar").style.width = proteinPercent + "%"
-
-}
-
-function updateSuggestion(){
-
-let remainingCal = 2200 - calories
-let remainingProtein = 160 - protein
-
-let suggestion = ""
-
-if(remainingCal <=0 && remainingProtein <=0){
-
-suggestion = "Świetnie! Osiągnięto dzienny cel."
-
-}
-
-else if(remainingProtein > 15){
-
-suggestion = "Brakuje białka. Dobrym wyborem będzie pudding proteinowy."
-
-}
-
-else if(remainingCal > 200){
-
-suggestion = "Możesz dodać małą przekąskę aby osiągnąć cel kalorii."
-
-}
-
-else{
-
-suggestion = "Jesteś bardzo blisko dziennego celu."
-
-}
-
-document.getElementById("suggestionText").innerText = suggestion
+document.getElementById("macroSuggestion").innerText=suggestion
 
 }
 
