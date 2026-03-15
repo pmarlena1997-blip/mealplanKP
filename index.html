@@ -1,365 +1,1130 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plan posiłków KP</title>
-
-<style>
-
-:root {
---bg:#f6f4ef;
---card:#ffffff;
---text:#222;
---muted:#6b6b6b;
---line:#e6e0d5;
---accent:#435b4d;
---accent-soft:#e8efe9;
---shadow:0 10px 28px rgba(34,34,34,0.08);
-}
-
-body{
-margin:0;
-font-family:Inter,Arial,sans-serif;
-background:linear-gradient(180deg,#fbfaf7 0%,var(--bg) 100%);
-color:var(--text);
-}
-
-.app{
-max-width:760px;
-margin:auto;
-padding:18px 14px 90px;
-}
-
-.hero{
-background:linear-gradient(135deg,#435b4d 0%,#627967 100%);
-color:white;
-padding:18px;
-border-radius:24px;
-box-shadow:var(--shadow);
-}
-
-.hero h1{
-margin:0 0 6px;
-font-size:1.7rem;
-}
-
-.kpi-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:16px;
-}
-
-.kpi{
-background:rgba(255,255,255,.12);
-border-radius:16px;
-padding:12px;
-}
-
-.progress{
-height:8px;
-background:rgba(255,255,255,.2);
-border-radius:999px;
-overflow:hidden;
-}
-
-.progress span{
-display:block;
-height:100%;
-background:white;
-width:0%;
-}
-
-.section{
-margin-top:18px;
-background:white;
-border-radius:22px;
-box-shadow:var(--shadow);
-}
-
-.section-head{
-padding:16px;
-}
-
-.checklist{
-padding:0 16px 16px;
-display:grid;
-gap:10px;
-}
-
-.check-item{
-background:white;
-border:1px solid var(--line);
-border-radius:16px;
-padding:13px;
-}
-
-.toolbar{
-display:flex;
-gap:10px;
-overflow-x:auto;
-padding:8px 16px;
-}
-
-.pill{
-background:white;
-border:1px solid var(--line);
-border-radius:999px;
-padding:8px 14px;
-}
-
-.pill.active{
-background:var(--accent);
-color:white;
-}
-
-.meal-grid{
-display:grid;
-gap:12px;
-padding:0 16px 16px;
-}
-
-.meal-card{
-background:white;
-border:1px solid var(--line);
-border-radius:18px;
-padding:14px;
-}
-
-button{
-border:0;
-border-radius:12px;
-padding:11px 13px;
-cursor:pointer;
-}
-
-.qty-wrap{
-display:inline-flex;
-gap:6px;
-background:#f7f3ec;
-border-radius:12px;
-padding:4px;
-}
-
-.qty{
-min-width:28px;
-text-align:center;
-font-weight:700;
-}
-
-.selected-list{
-display:grid;
-gap:10px;
-padding:0 16px 16px;
-}
-
-.selected-item{
-background:white;
-border:1px solid var(--line);
-border-radius:16px;
-padding:12px;
-display:flex;
-justify-content:space-between;
-}
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planer posiłków KP</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #222222;
+      --muted: #6b6b6b;
+      --line: #e6e0d5;
+      --accent: #435b4d;
+      --accent-soft: #e8efe9;
+      --gold: #c49a4a;
+      --danger: #b84a4a;
+      --shadow: 0 10px 28px rgba(34,34,34,0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #fbfaf7 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 18px 14px 90px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #435b4d 0%, #627967 100%);
+      color: white;
+      padding: 18px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 10px;
+      z-index: 5;
+    }
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 1.7rem;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.86);
+      font-size: 0.97rem;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .kpi {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .kpi-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.78);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: white;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.84);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+    .pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .section {
+      margin-top: 18px;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid #efe7da;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 16px 16px 10px;
+    }
+    .section h2 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .section p, .section small {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 14px;
+    }
+    .check-item label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      width: 100%;
+    }
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+    .exercise-dots {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .exercise-dots label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.88rem;
+      width: auto;
+    }
+    .exercise-dots input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 8px 16px 16px;
+      scrollbar-width: none;
+    }
+    .toolbar::-webkit-scrollbar { display: none; }
+    .meal-grid {
+      display: grid;
+      gap: 12px;
+      padding: 0 16px 16px;
+    }
+    .meal-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .meal-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+    .meal-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+    .serving {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-top: 4px;
+    }
+    .macro-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+    .macro {
+      background: #f8f5ef;
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-width: 90px;
+    }
+    .macro strong {
+      display: block;
+      font-size: 1.02rem;
+      margin-bottom: 2px;
+    }
+    .macro span {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 13px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #f1ece2;
+      color: var(--text);
+    }
+    .qty-wrap {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f7f3ec;
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .qty-wrap button {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      background: white;
+    }
+    .qty {
+      min-width: 28px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .selected-list {
+      display: grid;
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+    .selected-item {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .selected-item small {
+      display: block;
+      margin-top: 3px;
+    }
+    .split {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: end;
+      text-align: right;
+    }
+    .empty {
+      color: var(--muted);
+      padding: 0 16px 16px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      padding: 0 16px 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-ghost {
+      background: white;
+      border: 1px solid var(--line);
+    }
+    .note {
+      font-size: 0.86rem;
+      color: var(--muted);
+      padding: 0 16px 16px;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,26,26,0.48);
+      display: none;
+      align-items: end;
+      justify-content: center;
+      z-index: 30;
+      padding: 12px;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: min(720px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      background: white;
+      border-radius: 24px 24px 18px 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .modal-head h3 {
+      margin: 0 0 4px;
+      font-size: 1.2rem;
+    }
+    .detail-block {
+      margin-top: 16px;
+    }
+    .detail-block h4 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+    .detail-block ul, .detail-block ol {
+      margin: 0;
+      padding-left: 20px;
+      color: #363636;
+      line-height: 1.55;
+    }
+    .footer-space { height: 20px; }
+    @media (min-width: 640px) {
+      .meal-grid { grid-template-columns: 1fr 1fr; }
+      .selected-list { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="app">
-
-<section class="hero">
-<h1>Plan posiłków KP</h1>
-<p>Zaplanuj dzień wokół 2200 kcal i 160 g białka.</p>
-
-<div class="kpi-grid">
-
-<div class="kpi">
-<div>Kalorie</div>
-<div><span id="caloriesValue">0</span> / 2200</div>
-<div class="progress"><span id="caloriesBar"></span></div>
-</div>
-
-<div class="kpi">
-<div>Białko</div>
-<div><span id="proteinValue">0</span> g / 160 g</div>
-<div class="progress"><span id="proteinBar"></span></div>
-</div>
-
-</div>
-</section>
-
-
-<section class="section">
-<div class="section-head">
-<h2>Cele dzienne</h2>
-</div>
-
-<div class="checklist">
-
-<div class="check-item">
-<label><input type="checkbox"> Osiągnięto cel kalorii (2200 kcal)</label>
-</div>
-
-<div class="check-item">
-<label><input type="checkbox"> Osiągnięto cel białka (160 g)</label>
-</div>
-
-<div class="check-item">
-<label><input type="checkbox"> 10 000 kroków</label>
-</div>
-
-<div class="check-item">
-<label><input type="checkbox"> Wypite 2 litry wody</label>
-</div>
-
-</div>
-</section>
-
-
-<section class="section">
-<div class="section-head">
-<h2>Baza posiłków</h2>
-</div>
-
-<div class="toolbar" id="categoryTabs"></div>
-<div class="meal-grid" id="mealGrid"></div>
-
-</section>
-
-
-<section class="section">
-<div class="section-head">
-<h2>Dzisiejszy plan</h2>
-</div>
-
-<div class="selected-list" id="selectedList"></div>
-
-</section>
-
-
-<section class="section">
-<div class="section-head">
-<h2>Sugestia uzupełnienia makro</h2>
-<p id="macroSuggestion">Dodaj posiłki aby zobaczyć sugestię.</p>
-</div>
-</section>
-
-</div>
-
-<script>
-
-const TARGETS={calories:2200,protein:160}
-
-const MEALS=[
-{category:"Breakfast",name:"Breakfast Bagel",calories:1020,protein:88},
-{category:"Breakfast",name:"Breakfast Wrap",calories:940,protein:82},
-{category:"Breakfast",name:"Overnight Oats",calories:430,protein:31},
-
-{category:"Dinner",name:"Chicken Wraps",calories:700,protein:52},
-{category:"Dinner",name:"Chicken Pasta Bake",calories:760,protein:66},
-{category:"Dinner",name:"Spaghetti with Beef",calories:660,protein:43},
-{category:"Dinner",name:"Chicken Curry with Rice",calories:710,protein:100},
-
-{category:"Snack",name:"Cottage Cheese",calories:196,protein:22},
-{category:"Snack",name:"Boiled Eggs",calories:140,protein:12},
-{category:"Snack",name:"Protein Shake",calories:200,protein:30},
-{category:"Snack",name:"Protein Pudding",calories:150,protein:20}
-]
-
-let selected={}
-
-function updateTotals(){
-
-let cals=0
-let protein=0
-
-Object.keys(selected).forEach(name=>{
-let meal=MEALS.find(m=>m.name===name)
-cals+=meal.calories*selected[name]
-protein+=meal.protein*selected[name]
-})
-
-document.getElementById("caloriesValue").innerText=Math.round(cals)
-document.getElementById("proteinValue").innerText=Math.round(protein)
-
-document.getElementById("caloriesBar").style.width=Math.min((cals/TARGETS.calories)*100,100)+"%"
-document.getElementById("proteinBar").style.width=Math.min((protein/TARGETS.protein)*100,100)+"%"
-
-updateSuggestion(cals,protein)
-
-}
-
-function updateSuggestion(cals,protein){
-
-let calLeft=TARGETS.calories-cals
-let proteinLeft=TARGETS.protein-protein
-
-let text=""
-
-if(calLeft<=0 && proteinLeft<=0)
-text="Świetnie! Osiągnięto dzienny cel."
-
-else if(proteinLeft>15)
-text="Brakuje białka – dobrym wyborem będzie pudding proteinowy."
-
-else if(calLeft>150)
-text="Możesz dodać małą przekąskę."
-
-else
-text="Jesteś bardzo blisko celu."
-
-document.getElementById("macroSuggestion").innerText=text
-
-}
-
-function renderMeals(){
-
-const grid=document.getElementById("mealGrid")
-grid.innerHTML=""
-
-MEALS.forEach(meal=>{
-
-let qty=selected[meal.name]||0
-
-let card=document.createElement("div")
-card.className="meal-card"
-
-card.innerHTML=`
-<strong>${meal.name}</strong>
-<div>${meal.calories} kcal • ${meal.protein} g białka</div>
-
-<div class="qty-wrap">
-<button onclick="changeMeal('${meal.name}',-1)">−</button>
-<div class="qty">${qty}</div>
-<button onclick="changeMeal('${meal.name}',1)">+</button>
-</div>
-`
-
-grid.appendChild(card)
-
-})
-
-}
-
-function changeMeal(name,delta){
-
-let next=(selected[name]||0)+delta
-
-if(next<=0) delete selected[name]
-else selected[name]=next
-
-renderMeals()
-updateTotals()
-
-}
-
-renderMeals()
-updateTotals()
-
-</script>
-
+  <div class="app">
+    <section class="hero">
+      <h1>Codzienny planer posiłków KP</h1>
+      <p>Zaplanuj dzień wokół 2200 kcal i 160 g białka. Dodawaj posiłki, sprawdzaj sumy i odhaczaj codzienne działania.</p>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Kalorie</div>
+          <div class="kpi-value"><span id="caloriesValue">0</span> / 2200</div>
+          <div class="progress"><span id="caloriesBar"></span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Białko</div>
+          <div class="kpi-value"><span id="proteinValue">0</span> g / 160 g</div>
+          <div class="progress"><span id="proteinBar"></span></div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span id="todayLabel"></span>
+        <span id="remainingLabel">Pozostało 2200 kcal i 160 g białka</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Codzienna checklista</h2>
+        <p>Używaj tego, żeby najważniejsze podstawy były codziennie widoczne.</p>
+      </div>
+      <div class="checklist">
+        <div class="check-item">
+          <label><input type="checkbox" id="goalTick"><span>Dzienne cele żywieniowe osiągnięte</span></label>
+        </div>
+        <div class="check-item">
+          <label><input type="checkbox" id="stepsTick"><span>10 000 kroków zrobione</span></label>
+        </div>
+        <div class="check-item" style="display:block;">
+          <div><strong>Treningi w tym tygodniu</strong><br><small>Cel: 3 sesje tygodniowo.</small></div>
+          <div class="exercise-dots" id="exerciseDots"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Baza posiłków</h2>
+        <p>Kliknij posiłek, aby zobaczyć składniki, sposób przygotowania i makro. Użyj przycisków + i −, aby ułożyć plan na dzień.</p>
+      </div>
+      <div class="toolbar" id="categoryTabs"></div>
+      <div class="note" id="libraryNote"></div>
+      <div class="meal-grid" id="mealGrid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Plan na dziś</h2>
+        <p>Bieżące sumy aktualizują się automatycznie, gdy dodajesz lub usuwasz porcje.</p>
+      </div>
+      <div class="selected-list" id="selectedList"></div>
+      <div class="empty" id="selectedEmpty">Nie wybrano jeszcze żadnych posiłków.</div>
+      <div class="actions">
+        <button class="btn-primary" id="resetDayBtn">Resetuj dzisiejsze posiłki</button>
+        <button class="btn-ghost" id="resetWeekBtn">Resetuj tydzień treningowy</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Co dodałbym dalej</h2>
+      </div>
+      <div class="note" style="padding-top:0;">
+        1) Prosty widok listy zakupów generowanej na podstawie wybranych posiłków. 2) Checkbox dotyczący nawodnienia, żeby nawyki były bardziej widoczne. 3) Pole na notatki do zamienników lub posiłków jedzonych poza domem. 4) Opcjonalny szablon tygodniowy, gdy pojawią się opcje lunchowe.
+      </div>
+    </section>
+    <div class="footer-space"></div>
+  </div>
+
+  <div class="modal" id="mealModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3 id="modalTitle"></h3>
+          <small id="modalMeta"></small>
+        </div>
+        <button class="btn-secondary" id="closeModalBtn">Zamknij</button>
+      </div>
+      <div class="detail-block">
+        <h4>Składniki</h4>
+        <ul id="modalIngredients"></ul>
+      </div>
+      <div class="detail-block">
+        <h4>Jak przygotować</h4>
+        <ol id="modalInstructions"></ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MEALS = [
+      {
+        category: "Śniadanie",
+        name: "Bajgiel śniadaniowy",
+        ingredients: [
+          "2 proteinowe bajgle",
+          "4 medaliony z bekonu",
+          "4 kiełbaski z kurczaka",
+          "4 jajka",
+          "2 plastry sera",
+          "30 g ketchupu (opcjonalnie)"
+        ],
+        instructions: [
+          "Rozgrzej piekarnik lub grill i przygotuj medaliony z bekonu, aż będą zarumienione i dobrze upieczone.",
+          "Usmaż lub upiecz kiełbaski z kurczaka zgodnie z instrukcją na opakowaniu.",
+          "Rozgrzej patelnię z nieprzywierającą powłoką i przygotuj jajka w ulubionej formie: sadzone lub jajecznicę. Jeśli patelnia jest nieprzywierająca, nie potrzebujesz oleju.",
+          "Przekrój bajgle na pół i lekko je podpiecz, jeśli chcesz.",
+          "Na dolnej połówce każdego bajgla połóż plaster sera.",
+          "Dodaj po 2 medaliony z bekonu do każdego bajgla.",
+          "Dodaj po 2 kiełbaski z kurczaka do każdego bajgla.",
+          "Dodaj po 2 jajka do każdego bajgla.",
+          "Dodaj ketchup, jeśli chcesz.",
+          "Przykryj górną połówką bajgla i podawaj."
+        ],
+        serving: "2 bajgle = 1 porcja",
+        calories: 1020.0,
+        protein: 88.0
+      },
+      {
+        category: "Śniadanie",
+        name: "Wrap śniadaniowy",
+        ingredients: [
+          "2 proteinowe wrapy",
+          "4 jajka",
+          "4 medaliony z bekonu",
+          "4 kiełbaski z kurczaka",
+          "60 g startego sera",
+          "Ketchup (opcjonalnie)"
+        ],
+        instructions: [
+          "Usmaż lub upiecz medaliony z bekonu, aż będą gotowe.",
+          "Przygotuj kiełbaski z kurczaka, aż będą dobrze podgrzane.",
+          "Wbij jajka do miski i lekko je roztrzep.",
+          "Na patelni z nieprzywierającą powłoką zrób jajecznicę.",
+          "Połóż dwa wrapy płasko na talerzu.",
+          "Dodaj ketchup, jeśli chcesz.",
+          "Podziel bekon równo pomiędzy wrapy.",
+          "Dodaj kiełbaski do każdego wrapa.",
+          "Podziel jajecznicę równo pomiędzy wrapy.",
+          "Posyp startym serem.",
+          "Złóż boki wrapa do środka i ciasno zwiń przed podaniem."
+        ],
+        serving: "2 wrapy = 1 porcja",
+        calories: 940.0,
+        protein: 82.0
+      },
+      {
+        category: "Śniadanie",
+        name: "Owsianka nocna",
+        ingredients: [
+          "200 g płatków owsianych",
+          "330 ml napoju proteinowego",
+          "300 g twarogu ziarnistego",
+          "Odrobina mleka (opcjonalnie)",
+          "Owoce na wierzch (opcjonalnie)"
+        ],
+        instructions: [
+          "Wsyp płatki owsiane do dużej miski lub pojemnika.",
+          "Wlej napój proteinowy na płatki.",
+          "Dodaj twaróg ziarnisty.",
+          "Dokładnie wymieszaj, aż wszystkie składniki dobrze się połączą.",
+          "Jeśli wolisz rzadszą konsystencję, dodaj odrobinę mleka i ponownie wymieszaj.",
+          "Opcjonalnie możesz zblendować całość, jeśli wolisz gładszą konsystencję.",
+          "Przykryj miskę lub pojemnik.",
+          "Wstaw do lodówki na noc lub na minimum 6 godzin.",
+          "Rano wyjmij z lodówki.",
+          "Przed zjedzeniem dodaj owoce, jeśli chcesz."
+        ],
+        serving: "Przepis daje 2 porcje",
+        calories: 430.0,
+        protein: 31.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Wrapy z kurczakiem",
+        ingredients: [
+          "1 pierś z kurczaka (pokrojona w kostkę)",
+          "2 wrapy",
+          "1 czerwona cebula",
+          "2 pomidory",
+          "1/2 ogórka",
+          "Starty ser",
+          "Ketchup",
+          "1–2 łyżki oleju",
+          "Przyprawy (granulat czosnkowy, papryka, sól itp.)"
+        ],
+        instructions: [
+          "Pokrój pierś z kurczaka w małą kostkę.",
+          "Przełóż kurczaka do miski i dopraw granulatem czosnkowym, papryką i solą.",
+          "Rozgrzej olej na patelni na średnim ogniu.",
+          "Dodaj kurczaka i smaż, aż będzie w pełni ugotowany i lekko zarumieniony.",
+          "Drobno posiekaj czerwoną cebulę, pomidory i ogórka.",
+          "Wymieszaj warzywa w misce, aby przygotować sałatkę.",
+          "Połóż wrapy płasko na talerzu.",
+          "Posmaruj wrap ketchupem, jeśli chcesz.",
+          "Na każdy wrap nałóż połowę sałatki.",
+          "Dodaj połowę usmażonego kurczaka do każdego wrapa.",
+          "Posyp startym serem.",
+          "Złóż wrap i ciasno zwiń przed podaniem."
+        ],
+        serving: "2 wrapy = 1 porcja",
+        calories: 700.0,
+        protein: 52.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Zapiekanka makaronowa z kurczakiem",
+        ingredients: [
+          "600 g piersi z kurczaka",
+          "400 g makaronu",
+          "2 papryki",
+          "1 biała cebula",
+          "Pieczarki",
+          "1 puszka krojonych pomidorów",
+          "120 g startego sera",
+          "3 łyżki oleju",
+          "Przyprawy"
+        ],
+        instructions: [
+          "Zagotuj duży garnek osolonej wody i ugotuj makaron zgodnie z instrukcją na opakowaniu.",
+          "Pokrój pierś z kurczaka na małe kawałki.",
+          "Przełóż kurczaka do miski i dopraw granulatem czosnkowym, papryką i solą.",
+          "Rozgrzej 2 łyżki oleju na patelni.",
+          "Smaż kurczaka, aż będzie w pełni ugotowany i lekko zarumieniony, następnie zdejmij z patelni.",
+          "Drobno posiekaj cebulę, papryki i pieczarki.",
+          "Dodaj 1 łyżkę oleju na patelnię i smaż warzywa, aż zmiękną.",
+          "Odcedź ugotowany makaron.",
+          "Przełóż makaron, kurczaka i warzywa do naczynia żaroodpornego.",
+          "Dodaj krojone pomidory i dobrze wymieszaj.",
+          "Dodaj połowę startego sera i wymieszaj.",
+          "Pozostałym serem posyp wierzch.",
+          "Piecz w 180°C przez około 20 minut, aż ser się roztopi i zarumieni."
+        ],
+        serving: "1/3 naczynia = 1 porcja",
+        calories: 760.0,
+        protein: 66.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Spaghetti z wołowiną",
+        ingredients: [
+          "200 g chudego mięsa mielonego wołowego (≤5% tłuszczu)",
+          "120 g spaghetti (suchego)",
+          "1 biała cebula",
+          "1 puszka krojonych pomidorów",
+          "1 łyżka oleju",
+          "30 g startego lekkiego sera",
+          "Przyprawy"
+        ],
+        instructions: [
+          "Zagotuj osoloną wodę i ugotuj spaghetti zgodnie z instrukcją na opakowaniu.",
+          "Drobno posiekaj cebulę.",
+          "Rozgrzej olej na patelni.",
+          "Dodaj cebulę i smaż, aż zmięknie.",
+          "Dodaj mięso mielone i dopraw granulatem czosnkowym, papryką, solą oraz pieprzem.",
+          "Rozdziel mięso łyżką i smaż, aż się zarumieni.",
+          "Gdy mięso będzie prawie gotowe, dodaj krojone pomidory.",
+          "Wymieszaj i duś, aż sos zgęstnieje.",
+          "Spróbuj i ewentualnie dopraw.",
+          "Odcedź makaron.",
+          "Podaj makaron z sosem wołowym na wierzchu.",
+          "Posyp startym serem."
+        ],
+        serving: "1 talerz = 1 porcja",
+        calories: 660.0,
+        protein: 43.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Curry z kurczakiem i ryżem",
+        ingredients: [
+          "300 g piersi z kurczaka",
+          "50 g białego ryżu (suchego)",
+          "1 puszka krojonych pomidorów",
+          "50 ml lekkiego mleka kokosowego",
+          "1 cebula",
+          "Papryki",
+          "1 łyżeczka kurkumy",
+          "1 łyżka garam masala",
+          "1 łyżka kminu",
+          "1 łyżka papryki",
+          "1 łyżka granulatu czosnkowego",
+          "Sól",
+          "1 łyżka oleju"
+        ],
+        instructions: [
+          "Ugotuj ryż zgodnie z instrukcją na opakowaniu.",
+          "Pokrój kurczaka w kostkę.",
+          "Dopraw kurczaka kurkumą, garam masala, kminem, papryką i granulatem czosnkowym.",
+          "Rozgrzej olej na patelni i smaż kurczaka, aż będzie gotowy.",
+          "Zdejmij kurczaka z patelni.",
+          "Drobno posiekaj cebulę i paprykę.",
+          "Na tej samej patelni smaż warzywa, aż zmiękną.",
+          "Dodaj z powrotem kurczaka.",
+          "Dodaj krojone pomidory i wymieszaj.",
+          "Wlej mleko kokosowe.",
+          "Duś, aż sos zgęstnieje.",
+          "Podawaj curry z ryżem."
+        ],
+        serving: "1 talerz = 1 porcja",
+        calories: 710.0,
+        protein: 100.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Bowl z łososiem i ryżem",
+        ingredients: [
+          "200 g filetu z łososia",
+          "50 g ryżu (suchego)",
+          "1/3 ogórka",
+          "1 łyżka jasnego sosu sojowego",
+          "1 łyżka ciemnego sosu sojowego",
+          "1 łyżka lekkiego majonezu",
+          "Sriracha (opcjonalnie)",
+          "Granulat czosnkowy",
+          "Papryka"
+        ],
+        instructions: [
+          "Ugotuj ryż zgodnie z instrukcją na opakowaniu.",
+          "Dopraw łososia granulatem czosnkowym i papryką.",
+          "Przygotuj łososia w air fryerze, piekarniku lub na patelni, aż będzie gotowy.",
+          "Usuń skórę, jeśli jest.",
+          "Rozdrobnij łososia widelcem na mniejsze kawałki.",
+          "Drobno pokrój ogórka.",
+          "Przełóż ryż do miski.",
+          "Dodaj rozdrobnionego łososia.",
+          "Wymieszaj z sosami sojowymi i majonezem.",
+          "Dodaj ogórka i wymieszaj.",
+          "Jeśli chcesz ostrzejszą wersję, dodaj srirachę."
+        ],
+        serving: "1 miska = 1 porcja",
+        calories: 660.0,
+        protein: 47.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Kurczak z orzo i suszonymi pomidorami",
+        ingredients: [
+          "300 g piersi z kurczaka",
+          "100 g orzo (suchego)",
+          "2 łyżki oleju",
+          "1 cebula",
+          "60 g suszonych pomidorów",
+          "1 ząbek czosnku",
+          "20 g koncentratu pomidorowego",
+          "150 g twarogu ziarnistego",
+          "1 kostka rosołowa drobiowa",
+          "200 ml wody",
+          "30 g startego lekkiego sera",
+          "Papryka",
+          "Granulat czosnkowy"
+        ],
+        instructions: [
+          "Pokrój pierś z kurczaka na małe kawałki.",
+          "Dopraw kurczaka papryką i granulatem czosnkowym.",
+          "Drobno posiekaj cebulę i suszone pomidory.",
+          "Posiekaj czosnek.",
+          "Rozgrzej olej na patelni.",
+          "Dodaj cebulę i smaż, aż zmięknie.",
+          "Dodaj czosnek, koncentrat pomidorowy i suszone pomidory, a następnie mieszaj przez 1 minutę.",
+          "Dodaj pokrojonego kurczaka i smaż, aż będzie gotowy.",
+          "Wsyp suche orzo na patelnię.",
+          "Pokrusz kostkę rosołową i wlej wodę.",
+          "Dodaj twaróg ziarnisty i wszystko wymieszaj.",
+          "Zmniejsz ogień, przykryj i gotuj około 15 minut, mieszając od czasu do czasu.",
+          "Gotuj, aż orzo będzie miękkie, a płyn się zredukuje.",
+          "Przed podaniem posyp startym serem."
+        ],
+        serving: "1 patelnia = 1 porcja",
+        calories: 1120.0,
+        protein: 96.0
+      },
+      {
+        category: "Obiad / Kolacja",
+        name: "Meksykańskie wrapy z wołowiną",
+        ingredients: [
+          "200 g chudego mięsa mielonego wołowego",
+          "2 proteinowe wrapy",
+          "1/2 puszki czerwonej fasoli",
+          "Kukurydza",
+          "1 puszka krojonych pomidorów",
+          "1 biała cebula",
+          "30 g startego lekkiego sera",
+          "1 łyżka oleju",
+          "Papryka",
+          "Granulat czosnkowy",
+          "Chilli (opcjonalnie)"
+        ],
+        instructions: [
+          "Drobno posiekaj cebulę.",
+          "Rozgrzej olej na patelni na średnim ogniu.",
+          "Dodaj cebulę i smaż, aż zmięknie.",
+          "Dodaj mięso mielone.",
+          "Dopraw papryką, granulatem czosnkowym, chilli, solą i pieprzem.",
+          "Smaż mięso, rozdrabniając je łyżką, aż się zarumieni.",
+          "Dodaj krojone pomidory, fasolę i kukurydzę.",
+          "Dobrze wymieszaj i duś, aż masa zgęstnieje.",
+          "Podziel farsz równo pomiędzy dwa wrapy.",
+          "Posyp serem.",
+          "Złóż wrapy i ciasno zwiń przed podaniem."
+        ],
+        serving: "2 wrapy = 1 porcja",
+        calories: 810.0,
+        protein: 63.0
+      },
+      {
+        category: "Przekąska",
+        name: "Twaróg ziarnisty",
+        ingredients: [],
+        instructions: [],
+        serving: "200 g",
+        calories: 196.0,
+        protein: 22.0
+      },
+      {
+        category: "Przekąska",
+        name: "Jajka na twardo",
+        ingredients: [],
+        instructions: [],
+        serving: "2 jajka",
+        calories: 140.0,
+        protein: 12.0
+      },
+      {
+        category: "Przekąska",
+        name: "Shake proteinowy",
+        ingredients: [],
+        instructions: [],
+        serving: "1 butelka",
+        calories: 200.0,
+        protein: 30.0
+      },
+      {
+        category: "Przekąska",
+        name: "Pudding proteinowy",
+        ingredients: [],
+        instructions: [],
+        serving: "1 kubeczek",
+        calories: 150.0,
+        protein: 20.0
+      },
+      {
+        category: "Przekąska",
+        name: "Baton proteinowy",
+        ingredients: [],
+        instructions: [],
+        serving: "1 baton",
+        calories: 200.0,
+        protein: 20.0
+      }
+    ];
+
+    const TARGETS = { calories: 2200, protein: 160 };
+    const STORAGE_KEY = "kp-meal-planner-v1";
+
+    function getTodayKey() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    function getWeekKey() {
+      const d = new Date();
+      const copy = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = copy.getUTCDay() || 7;
+      copy.setUTCDate(copy.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(copy.getUTCFullYear(),0,1));
+      const weekNo = Math.ceil((((copy - yearStart) / 86400000) + 1) / 7);
+      return `${copy.getUTCFullYear()}-W${String(weekNo).padStart(2,"0")}`;
+    }
+
+    function blankState() {
+      return {
+        dailyDate: getTodayKey(),
+        weekKey: getWeekKey(),
+        selected: {},
+        checks: { goal: false, steps: false },
+        exercise: [false, false, false]
+      };
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let state = raw ? JSON.parse(raw) : blankState();
+      if (state.dailyDate !== getTodayKey()) {
+        state.dailyDate = getTodayKey();
+        state.selected = {};
+        state.checks = { goal: false, steps: false };
+      }
+      if (state.weekKey !== getWeekKey()) {
+        state.weekKey = getWeekKey();
+        state.exercise = [false, false, false];
+      }
+      return state;
+    }
+
+    let state = loadState();
+    let currentCategory = "Wszystkie";
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function formatNum(value) {
+      return Number.isInteger(value) ? String(value) : value.toFixed(1);
+    }
+
+    function totalMacros() {
+      return MEALS.reduce((acc, meal) => {
+        const qty = state.selected[meal.name] || 0;
+        acc.calories += qty * meal.calories;
+        acc.protein += qty * meal.protein;
+        return acc;
+      }, { calories: 0, protein: 0 });
+    }
+
+    function categories() {
+      return ["Wszystkie", ...new Set(MEALS.map(m => m.category))];
+    }
+
+    function renderTabs() {
+      const tabs = document.getElementById("categoryTabs");
+      tabs.innerHTML = "";
+      categories().forEach(category => {
+        const btn = document.createElement("button");
+        btn.className = "pill" + (category === currentCategory ? " active" : "");
+        btn.textContent = category;
+        btn.onclick = () => {
+          currentCategory = category;
+          renderTabs();
+          renderMeals();
+        };
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderMeals() {
+      const grid = document.getElementById("mealGrid");
+      const note = document.getElementById("libraryNote");
+      const visibleMeals = currentCategory === "Wszystkie"
+        ? MEALS
+        : MEALS.filter(m => m.category === currentCategory);
+
+      grid.innerHTML = "";
+      note.textContent = "Przesłany plik zawiera opcje śniadań, obiadów/kolacji i przekąsek. Opcje lunchowe nie zostały jeszcze dodane do pliku źródłowego, dlatego strona pokazuje tylko obecnie dostępne kategorie.";
+
+      visibleMeals.forEach(meal => {
+        const card = document.createElement("article");
+        card.className = "meal-card";
+        const qty = state.selected[meal.name] || 0;
+        card.innerHTML = `
+          <div class="meal-top">
+            <div>
+              <h3>${meal.name}</h3>
+              <div class="serving">${meal.category} · ${meal.serving}</div>
+            </div>
+          </div>
+          <div class="macro-row">
+            <div class="macro"><strong>${formatNum(meal.calories)}</strong><span>kcal na porcję</span></div>
+            <div class="macro"><strong>${formatNum(meal.protein)} g</strong><span>białka na porcję</span></div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-secondary">Zobacz przepis</button>
+            <div class="qty-wrap">
+              <button aria-label="Usuń porcję">−</button>
+              <div class="qty">${qty}</div>
+              <button aria-label="Dodaj porcję">+</button>
+            </div>
+          </div>
+        `;
+        const [viewBtn, qtyWrap] = card.querySelectorAll(".card-actions > *");
+        const [minusBtn, , plusBtn] = qtyWrap.children;
+        viewBtn.onclick = () => openModal(meal);
+        minusBtn.onclick = () => updateMealQty(meal.name, -1);
+        plusBtn.onclick = () => updateMealQty(meal.name, 1);
+        grid.appendChild(card);
+      });
+    }
+
+    function updateMealQty(name, delta) {
+      const next = (state.selected[name] || 0) + delta;
+      if (next <= 0) delete state.selected[name];
+      else state.selected[name] = next;
+      saveState();
+      renderAll();
+    }
+
+    function renderSelected() {
+      const wrap = document.getElementById("selectedList");
+      const empty = document.getElementById("selectedEmpty");
+      wrap.innerHTML = "";
+      const picked = MEALS.filter(meal => state.selected[meal.name]);
+      empty.style.display = picked.length ? "none" : "block";
+
+      picked.forEach(meal => {
+        const qty = state.selected[meal.name];
+        const item = document.createElement("div");
+        item.className = "selected-item";
+        item.innerHTML = `
+          <div>
+            <strong>${meal.name}</strong>
+            <small>${qty} × ${meal.serving}</small>
+          </div>
+          <div class="split">
+            <div>${formatNum(meal.calories * qty)} kcal</div>
+            <div>${formatNum(meal.protein * qty)} g białka</div>
+          </div>
+        `;
+        wrap.appendChild(item);
+      });
+    }
+
+    function renderTotals() {
+      const totals = totalMacros();
+      const cals = Math.round(totals.calories);
+      const protein = Math.round(totals.protein);
+
+      document.getElementById("caloriesValue").textContent = cals;
+      document.getElementById("proteinValue").textContent = protein;
+      document.getElementById("caloriesBar").style.width = Math.min((cals / TARGETS.calories) * 100, 100) + "%";
+      document.getElementById("proteinBar").style.width = Math.min((protein / TARGETS.protein) * 100, 100) + "%";
+
+      const calsLeft = TARGETS.calories - cals;
+      const proteinLeft = TARGETS.protein - protein;
+
+      const calText = calsLeft > 0 ? `Pozostało ${calsLeft} kcal` : `Przekroczono o ${Math.abs(calsLeft)} kcal`;
+      const proteinText = proteinLeft > 0 ? `Pozostało ${proteinLeft} g białka` : `Przekroczono o ${Math.abs(proteinLeft)} g białka`;
+
+      document.getElementById("remainingLabel").textContent = `${calText} · ${proteinText}`;
+
+      const autoHit = cals >= TARGETS.calories && protein >= TARGETS.protein;
+      document.getElementById("goalTick").checked = state.checks.goal || autoHit;
+    }
+
+    function renderChecklist() {
+      document.getElementById("stepsTick").checked = !!state.checks.steps;
+      const dots = document.getElementById("exerciseDots");
+      dots.innerHTML = "";
+
+      state.exercise.forEach((done, index) => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" ${done ? "checked" : ""}><span>Sesja ${index + 1}</span>`;
+        label.querySelector("input").onchange = (e) => {
+          state.exercise[index] = e.target.checked;
+          saveState();
+        };
+        dots.appendChild(label);
+      });
+    }
+
+    function openModal(meal) {
+      document.getElementById("modalTitle").textContent = meal.name;
+      document.getElementById("modalMeta").textContent = `${meal.category} · ${meal.serving} · ${formatNum(meal.calories)} kcal · ${formatNum(meal.protein)} g białka`;
+
+      const ing = document.getElementById("modalIngredients");
+      const ins = document.getElementById("modalInstructions");
+      ing.innerHTML = "";
+      ins.innerHTML = "";
+
+      if (meal.ingredients.length) {
+        meal.ingredients.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          ing.appendChild(li);
+        });
+      } else {
+        ing.innerHTML = "<li>Brak składników w pliku źródłowym.</li>";
+      }
+
+      if (meal.instructions.length) {
+        meal.instructions.forEach(step => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          ins.appendChild(li);
+        });
+      } else {
+        ins.innerHTML = "<li>Brak sposobu przygotowania w pliku źródłowym.</li>";
+      }
+
+      document.getElementById("mealModal").classList.add("open");
+      document.getElementById("mealModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      document.getElementById("mealModal").classList.remove("open");
+      document.getElementById("mealModal").setAttribute("aria-hidden", "true");
+    }
+
+    function bindControls() {
+      document.getElementById("goalTick").onchange = (e) => {
+        state.checks.goal = e.target.checked;
+        saveState();
+      };
+
+      document.getElementById("stepsTick").onchange = (e) => {
+        state.checks.steps = e.target.checked;
+        saveState();
+      };
+
+      document.getElementById("resetDayBtn").onclick = () => {
+        if (!confirm("Zresetować dzisiejsze wybrane posiłki i dzienne odhaczenia?")) return;
+        state.selected = {};
+        state.checks = { goal: false, steps: false };
+        saveState();
+        renderAll();
+      };
+
+      document.getElementById("resetWeekBtn").onclick = () => {
+        if (!confirm("Zresetować treningi z tego tygodnia?")) return;
+        state.exercise = [false, false, false];
+        saveState();
+        renderAll();
+      };
+
+      document.getElementById("closeModalBtn").onclick = closeModal;
+      document.getElementById("mealModal").onclick = (e) => {
+        if (e.target.id === "mealModal") closeModal();
+      };
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+    }
+
+    function renderAll() {
+      renderTabs();
+      renderMeals();
+      renderSelected();
+      renderTotals();
+      renderChecklist();
+
+      document.getElementById("todayLabel").textContent = new Date().toLocaleDateString("pl-PL", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      });
+    }
+
+    bindControls();
+    renderAll();
+  </script>
 </body>
 </html>
