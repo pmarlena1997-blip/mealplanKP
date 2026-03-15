@@ -7,7 +7,7 @@
 
 <style>
 
-:root{
+:root {
 --bg:#f6f4ef;
 --card:#ffffff;
 --text:#222;
@@ -15,24 +15,20 @@
 --line:#e6e0d5;
 --accent:#435b4d;
 --accent-soft:#e8efe9;
---gold:#c49a4a;
 --shadow:0 10px 28px rgba(34,34,34,0.08);
---radius:18px;
 }
-
-*{box-sizing:border-box}
 
 body{
 margin:0;
 font-family:Inter,Arial,sans-serif;
 background:linear-gradient(180deg,#fbfaf7 0%,var(--bg) 100%);
-color:var(--text)
+color:var(--text);
 }
 
 .app{
 max-width:760px;
 margin:auto;
-padding:18px 14px 90px
+padding:18px 14px 90px;
 }
 
 .hero{
@@ -40,138 +36,102 @@ background:linear-gradient(135deg,#435b4d 0%,#627967 100%);
 color:white;
 padding:18px;
 border-radius:24px;
-box-shadow:var(--shadow)
+box-shadow:var(--shadow);
 }
 
 .hero h1{
 margin:0 0 6px;
-font-size:1.7rem
-}
-
-.hero p{
-margin:0;
-opacity:.9
+font-size:1.7rem;
 }
 
 .kpi-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
-margin-top:16px
+margin-top:16px;
 }
 
 .kpi{
 background:rgba(255,255,255,.12);
 border-radius:16px;
-padding:12px
-}
-
-.kpi-label{
-font-size:.8rem;
-opacity:.8
-}
-
-.kpi-value{
-font-size:1.35rem;
-font-weight:700
+padding:12px;
 }
 
 .progress{
 height:8px;
 background:rgba(255,255,255,.2);
 border-radius:999px;
-overflow:hidden
+overflow:hidden;
 }
 
 .progress span{
 display:block;
 height:100%;
 background:white;
-width:0%
+width:0%;
 }
 
 .section{
 margin-top:18px;
-background:rgba(255,255,255,.8);
-border:1px solid #efe7da;
+background:white;
 border-radius:22px;
-box-shadow:var(--shadow)
+box-shadow:var(--shadow);
 }
 
 .section-head{
-padding:16px
-}
-
-.section h2{
-margin:0 0 4px
+padding:16px;
 }
 
 .checklist{
 padding:0 16px 16px;
 display:grid;
-gap:10px
+gap:10px;
 }
 
 .check-item{
 background:white;
 border:1px solid var(--line);
 border-radius:16px;
-padding:13px
+padding:13px;
 }
 
 .toolbar{
 display:flex;
 gap:10px;
 overflow-x:auto;
-padding:8px 16px
+padding:8px 16px;
 }
 
 .pill{
 background:white;
 border:1px solid var(--line);
 border-radius:999px;
-padding:8px 14px
+padding:8px 14px;
 }
 
 .pill.active{
 background:var(--accent);
-color:white
+color:white;
 }
 
 .meal-grid{
 display:grid;
 gap:12px;
-padding:0 16px 16px
+padding:0 16px 16px;
 }
 
 .meal-card{
 background:white;
 border:1px solid var(--line);
 border-radius:18px;
-padding:14px
-}
-
-.macro-row{
-display:flex;
-gap:10px;
-margin:12px 0
-}
-
-.macro{
-background:#f8f5ef;
-border-radius:12px;
-padding:10px
+padding:14px;
 }
 
 button{
 border:0;
 border-radius:12px;
 padding:11px 13px;
-cursor:pointer
-}
-
-.btn-secondary{
-background:#f1ece2
+cursor:pointer;
 }
 
 .qty-wrap{
@@ -179,19 +139,19 @@ display:inline-flex;
 gap:6px;
 background:#f7f3ec;
 border-radius:12px;
-padding:4px
+padding:4px;
 }
 
 .qty{
 min-width:28px;
 text-align:center;
-font-weight:700
+font-weight:700;
 }
 
 .selected-list{
 display:grid;
 gap:10px;
-padding:0 16px 16px
+padding:0 16px 16px;
 }
 
 .selected-item{
@@ -200,26 +160,7 @@ border:1px solid var(--line);
 border-radius:16px;
 padding:12px;
 display:flex;
-justify-content:space-between
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.4);
-display:none;
-align-items:end;
-justify-content:center
-}
-
-.modal.open{display:flex}
-
-.modal-card{
-background:white;
-border-radius:24px 24px 18px 18px;
-padding:18px;
-max-height:85vh;
-overflow:auto
+justify-content:space-between;
 }
 
 </style>
@@ -230,57 +171,48 @@ overflow:auto
 <div class="app">
 
 <section class="hero">
-
 <h1>Plan posiłków KP</h1>
 <p>Zaplanuj dzień wokół 2200 kcal i 160 g białka.</p>
 
 <div class="kpi-grid">
 
 <div class="kpi">
-<div class="kpi-label">Kalorie</div>
-<div class="kpi-value"><span id="caloriesValue">0</span> / 2200</div>
+<div>Kalorie</div>
+<div><span id="caloriesValue">0</span> / 2200</div>
 <div class="progress"><span id="caloriesBar"></span></div>
 </div>
 
 <div class="kpi">
-<div class="kpi-label">Białko</div>
-<div class="kpi-value"><span id="proteinValue">0</span> g / 160 g</div>
+<div>Białko</div>
+<div><span id="proteinValue">0</span> g / 160 g</div>
 <div class="progress"><span id="proteinBar"></span></div>
 </div>
 
 </div>
-
 </section>
 
 
 <section class="section">
 <div class="section-head">
 <h2>Cele dzienne</h2>
-<p>Odhacz podstawowe nawyki każdego dnia.</p>
 </div>
 
 <div class="checklist">
 
 <div class="check-item">
-<label><input type="checkbox" id="calorieGoalTick"> Osiągnięto cel kalorii (2200 kcal)</label>
+<label><input type="checkbox"> Osiągnięto cel kalorii (2200 kcal)</label>
 </div>
 
 <div class="check-item">
-<label><input type="checkbox" id="proteinGoalTick"> Osiągnięto cel białka (160 g)</label>
+<label><input type="checkbox"> Osiągnięto cel białka (160 g)</label>
 </div>
 
 <div class="check-item">
-<label><input type="checkbox" id="stepsTick"> 10 000 kroków</label>
+<label><input type="checkbox"> 10 000 kroków</label>
 </div>
 
 <div class="check-item">
-<label><input type="checkbox" id="waterTick"> Wypite 2 litry wody</label>
-</div>
-
-<div class="check-item">
-<strong>Treningi w tygodniu</strong><br>
-<small>Cel: 3 treningi tygodniowo</small>
-<div id="exerciseDots"></div>
+<label><input type="checkbox"> Wypite 2 litry wody</label>
 </div>
 
 </div>
@@ -290,7 +222,6 @@ overflow:auto
 <section class="section">
 <div class="section-head">
 <h2>Baza posiłków</h2>
-<p>Kliknij posiłek aby zobaczyć składniki i sposób przygotowania.</p>
 </div>
 
 <div class="toolbar" id="categoryTabs"></div>
@@ -322,28 +253,111 @@ overflow:auto
 
 const TARGETS={calories:2200,protein:160}
 
-function updateSuggestion(calories,protein){
+const MEALS=[
+{category:"Breakfast",name:"Breakfast Bagel",calories:1020,protein:88},
+{category:"Breakfast",name:"Breakfast Wrap",calories:940,protein:82},
+{category:"Breakfast",name:"Overnight Oats",calories:430,protein:31},
 
-let calLeft=TARGETS.calories-calories
+{category:"Dinner",name:"Chicken Wraps",calories:700,protein:52},
+{category:"Dinner",name:"Chicken Pasta Bake",calories:760,protein:66},
+{category:"Dinner",name:"Spaghetti with Beef",calories:660,protein:43},
+{category:"Dinner",name:"Chicken Curry with Rice",calories:710,protein:100},
+
+{category:"Snack",name:"Cottage Cheese",calories:196,protein:22},
+{category:"Snack",name:"Boiled Eggs",calories:140,protein:12},
+{category:"Snack",name:"Protein Shake",calories:200,protein:30},
+{category:"Snack",name:"Protein Pudding",calories:150,protein:20}
+]
+
+let selected={}
+
+function updateTotals(){
+
+let cals=0
+let protein=0
+
+Object.keys(selected).forEach(name=>{
+let meal=MEALS.find(m=>m.name===name)
+cals+=meal.calories*selected[name]
+protein+=meal.protein*selected[name]
+})
+
+document.getElementById("caloriesValue").innerText=Math.round(cals)
+document.getElementById("proteinValue").innerText=Math.round(protein)
+
+document.getElementById("caloriesBar").style.width=Math.min((cals/TARGETS.calories)*100,100)+"%"
+document.getElementById("proteinBar").style.width=Math.min((protein/TARGETS.protein)*100,100)+"%"
+
+updateSuggestion(cals,protein)
+
+}
+
+function updateSuggestion(cals,protein){
+
+let calLeft=TARGETS.calories-cals
 let proteinLeft=TARGETS.protein-protein
 
-let suggestion=""
+let text=""
 
 if(calLeft<=0 && proteinLeft<=0)
-suggestion="Świetnie! Osiągnięto dzienny cel."
+text="Świetnie! Osiągnięto dzienny cel."
 
 else if(proteinLeft>15)
-suggestion="Brakuje białka – dobrym wyborem będzie pudding proteinowy."
+text="Brakuje białka – dobrym wyborem będzie pudding proteinowy."
 
 else if(calLeft>150)
-suggestion="Możesz dodać małą przekąskę."
+text="Możesz dodać małą przekąskę."
 
 else
-suggestion="Jesteś bardzo blisko dziennego celu."
+text="Jesteś bardzo blisko celu."
 
-document.getElementById("calorieGoalTick").checked = cals >= TARGETS.calories
-document.getElementById("proteinGoalTick").checked = protein >= TARGETS.protein
+document.getElementById("macroSuggestion").innerText=text
+
 }
+
+function renderMeals(){
+
+const grid=document.getElementById("mealGrid")
+grid.innerHTML=""
+
+MEALS.forEach(meal=>{
+
+let qty=selected[meal.name]||0
+
+let card=document.createElement("div")
+card.className="meal-card"
+
+card.innerHTML=`
+<strong>${meal.name}</strong>
+<div>${meal.calories} kcal • ${meal.protein} g białka</div>
+
+<div class="qty-wrap">
+<button onclick="changeMeal('${meal.name}',-1)">−</button>
+<div class="qty">${qty}</div>
+<button onclick="changeMeal('${meal.name}',1)">+</button>
+</div>
+`
+
+grid.appendChild(card)
+
+})
+
+}
+
+function changeMeal(name,delta){
+
+let next=(selected[name]||0)+delta
+
+if(next<=0) delete selected[name]
+else selected[name]=next
+
+renderMeals()
+updateTotals()
+
+}
+
+renderMeals()
+updateTotals()
 
 </script>
 
