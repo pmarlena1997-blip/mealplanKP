@@ -341,8 +341,8 @@ suggestion="Możesz dodać małą przekąskę."
 else
 suggestion="Jesteś bardzo blisko dziennego celu."
 
-document.getElementById("macroSuggestion").innerText=suggestion
-
+document.getElementById("calorieGoalTick").checked = cals >= TARGETS.calories
+document.getElementById("proteinGoalTick").checked = protein >= TARGETS.protein
 }
 
 </script>
