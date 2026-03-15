@@ -13,10 +13,7 @@
       --line: #e6e0d5;
       --accent: #435b4d;
       --accent-soft: #e8efe9;
-      --gold: #c49a4a;
-      --danger: #b84a4a;
       --shadow: 0 10px 28px rgba(34,34,34,0.08);
-      --radius: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -526,7 +523,10 @@
       </div>
       <div class="checklist">
         <div class="check-item">
-          <label><input type="checkbox" id="goalTick"><span>Dzienne cele żywieniowe osiągnięte</span></label>
+          <label><input type="checkbox" id="calorieGoalTick"><span>Cel kalorii osiągnięty</span></label>
+        </div>
+        <div class="check-item">
+          <label><input type="checkbox" id="proteinGoalTick"><span>Cel białka osiągnięty</span></label>
         </div>
         <div class="check-item">
           <label><input type="checkbox" id="stepsTick"><span>10 000 kroków zrobione</span></label>
@@ -831,7 +831,7 @@
         ],
         instructions: [
           "Ugotuj ryż zgodnie z instrukcją na opakowaniu.",
-          "Dopraw łososia granulatem czososnkowym i papryką.",
+          "Dopraw łososia granulatem czosnkowym i papryką.",
           "Przygotuj łososia w air fryerze, piekarniku lub na patelni, aż będzie gotowy.",
           "Usuń skórę, jeśli jest.",
           "Rozdrobnij łososia widelcem na mniejsze kawałki.",
@@ -917,55 +917,15 @@
         calories: 810,
         protein: 63
       },
-      {
-        category: "Przekąska",
-        name: "Twaróg ziarnisty",
-        ingredients: [],
-        instructions: [],
-        serving: "200 g",
-        calories: 196,
-        protein: 22
-      },
-      {
-        category: "Przekąska",
-        name: "Jajka na twardo",
-        ingredients: [],
-        instructions: [],
-        serving: "2 jajka",
-        calories: 140,
-        protein: 12
-      },
-      {
-        category: "Przekąska",
-        name: "Shake proteinowy",
-        ingredients: [],
-        instructions: [],
-        serving: "1 butelka",
-        calories: 200,
-        protein: 30
-      },
-      {
-        category: "Przekąska",
-        name: "Pudding proteinowy",
-        ingredients: [],
-        instructions: [],
-        serving: "1 kubeczek",
-        calories: 150,
-        protein: 20
-      },
-      {
-        category: "Przekąska",
-        name: "Baton proteinowy",
-        ingredients: [],
-        instructions: [],
-        serving: "1 baton",
-        calories: 200,
-        protein: 20
-      }
+      { category: "Przekąska", name: "Twaróg ziarnisty", ingredients: [], instructions: [], serving: "200 g", calories: 196, protein: 22 },
+      { category: "Przekąska", name: "Jajka na twardo", ingredients: [], instructions: [], serving: "2 jajka", calories: 140, protein: 12 },
+      { category: "Przekąska", name: "Shake proteinowy", ingredients: [], instructions: [], serving: "1 butelka", calories: 200, protein: 30 },
+      { category: "Przekąska", name: "Pudding proteinowy", ingredients: [], instructions: [], serving: "1 kubeczek", calories: 150, protein: 20 },
+      { category: "Przekąska", name: "Baton proteinowy", ingredients: [], instructions: [], serving: "1 baton", calories: 200, protein: 20 }
     ];
 
     const TARGETS = { calories: 2200, protein: 160 };
-    const STORAGE_KEY = "kp-meal-planner-v2";
+    const STORAGE_KEY = "kp-meal-planner-v3";
 
     function getTodayKey() {
       const d = new Date();
@@ -987,7 +947,12 @@
         dailyDate: getTodayKey(),
         weekKey: getWeekKey(),
         selected: {},
-        checks: { goal: false, steps: false, water: false },
+        checks: {
+          calories: false,
+          protein: false,
+          steps: false,
+          water: false
+        },
         exercise: [false, false, false]
       };
     }
@@ -997,17 +962,28 @@
       let state = raw ? JSON.parse(raw) : blankState();
 
       if (!state.checks) {
-        state.checks = { goal: false, steps: false, water: false };
+        state.checks = {
+          calories: false,
+          protein: false,
+          steps: false,
+          water: false
+        };
       }
 
-      if (typeof state.checks.water === "undefined") {
-        state.checks.water = false;
-      }
+      if (typeof state.checks.calories === "undefined") state.checks.calories = false;
+      if (typeof state.checks.protein === "undefined") state.checks.protein = false;
+      if (typeof state.checks.steps === "undefined") state.checks.steps = false;
+      if (typeof state.checks.water === "undefined") state.checks.water = false;
 
       if (state.dailyDate !== getTodayKey()) {
         state.dailyDate = getTodayKey();
         state.selected = {};
-        state.checks = { goal: false, steps: false, water: false };
+        state.checks = {
+          calories: false,
+          protein: false,
+          steps: false,
+          water: false
+        };
       }
 
       if (state.weekKey !== getWeekKey()) {
@@ -1160,8 +1136,11 @@
 
       document.getElementById("remainingLabel").textContent = `${calText} · ${proteinText}`;
 
-      const autoHit = cals >= TARGETS.calories && protein >= TARGETS.protein;
-      document.getElementById("goalTick").checked = state.checks.goal || autoHit;
+      const calorieGoalMet = cals >= TARGETS.calories;
+      const proteinGoalMet = protein >= TARGETS.protein;
+
+      document.getElementById("calorieGoalTick").checked = state.checks.calories || calorieGoalMet;
+      document.getElementById("proteinGoalTick").checked = state.checks.protein || proteinGoalMet;
     }
 
     function renderChecklist() {
@@ -1190,7 +1169,7 @@
       const snacks = getSnackMeals();
       const combos = [];
 
-      function helper(startIndex, currentItems, totalCalories, totalProtein) {
+      function helper(currentItems, totalCalories, totalProtein) {
         if (currentItems.length > 0) {
           combos.push({
             items: [...currentItems],
@@ -1203,12 +1182,12 @@
 
         for (let i = 0; i < snacks.length; i++) {
           currentItems.push(snacks[i]);
-          helper(i, currentItems, totalCalories + snacks[i].calories, totalProtein + snacks[i].protein);
+          helper(currentItems, totalCalories + snacks[i].calories, totalProtein + snacks[i].protein);
           currentItems.pop();
         }
       }
 
-      helper(0, [], 0, 0);
+      helper([], 0, 0);
       return combos;
     }
 
@@ -1368,8 +1347,13 @@
     }
 
     function bindControls() {
-      document.getElementById("goalTick").onchange = (e) => {
-        state.checks.goal = e.target.checked;
+      document.getElementById("calorieGoalTick").onchange = (e) => {
+        state.checks.calories = e.target.checked;
+        saveState();
+      };
+
+      document.getElementById("proteinGoalTick").onchange = (e) => {
+        state.checks.protein = e.target.checked;
         saveState();
       };
 
@@ -1386,7 +1370,12 @@
       document.getElementById("resetDayBtn").onclick = () => {
         if (!confirm("Zresetować dzisiejsze wybrane posiłki i dzienne odhaczenia?")) return;
         state.selected = {};
-        state.checks = { goal: false, steps: false, water: false };
+        state.checks = {
+          calories: false,
+          protein: false,
+          steps: false,
+          water: false
+        };
         saveState();
         renderAll();
       };
